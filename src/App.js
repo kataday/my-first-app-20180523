@@ -22,9 +22,6 @@ const uiConfig = {
   callbacks: {
     // signInSuccess: function(currentUser, credential, redirectUrl) {
     signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-      console.log(authResult);
-      console.log(redirectUrl);
-      window.alert('SignIn.')
       // User successfully signed in.
       // Return type determines whether we continue the redirect automatically
       // or whether we leave that to developer to handle.
@@ -43,24 +40,48 @@ const uiConfig = {
   // We will display Google and Facebook as auth providers.
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-    {
+    firebase.auth.FacebookAuthProvider.PROVIDER_ID, {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
       requireDisplayName: false
     }
-  ],
+  ]
 };
 
 class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isSignedIn: false
+    }
+  }
+
+  // Listen to the Firebase Auth state and set the local state.
+  componentDidMount() {
+    this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => this.setState({
+      isSignedIn: !!user
+    }));
+  }
+
+  // Make sure we un-register Firebase observers when the component unmounts.
+  componentWillUnmount() {
+    this.unregisterAuthObserver();
+  }
+
   render() {
-    return (
-      <div>
+    if (!this.state.isSignedIn) {
+      return (<div>
         <h1>My App</h1>
         <p>Please sign-in:</p>
         <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
         <div id="loader">Loading...</div>
-      </div>
-    );
+      </div>);
+    } else {
+      return (<div>
+        <h1>My App</h1>
+        <p>Welcome {firebase.auth().currentUser.displayName}! You are now signed-in!</p>
+        <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
+      </div>);
+    }
   }
 }
 
