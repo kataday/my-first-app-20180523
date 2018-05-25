@@ -1,0 +1,11 @@
+講座: コレクション
+  id: ドキュメント
+    講師の名前: user.name
+    講師のサムネイル: imageのパス（Strage）
+    一言PR: string
+    コース: サブコレクション
+      タイトル: string
+      サムネイル: imageのパス（Strage）
+      概要: string
+    メモ: string
+    created: timestamp
