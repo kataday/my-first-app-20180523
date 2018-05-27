@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import logo from './logo.svg';
+import SignedIn from './SignedIn';
+import NotSignedIn from './NotSignedIn';
 import './App.css';
 
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
@@ -11,11 +12,16 @@ import 'firebase/auth';
 var config = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   // databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
   // storageBucket: "<BUCKET>.appspot.com",
   // messagingSenderId: "<SENDER_ID>",
 };
 firebase.initializeApp(config);
+// Initialize Cloud Firestore through Firebase
+const firestore = firebase.firestore();
+const settings = {/* your settings... */ timestampsInSnapshots: true};
+firestore.settings(settings);
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -74,13 +80,12 @@ class App extends Component {
         <p>Please sign-in:</p>
         <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
         <div id="loader">Loading...</div>
+        <NotSignedIn firestore={firestore} />
       </div>);
     } else {
-      return (<div>
-        <h1>My App</h1>
-        <p>Welcome {firebase.auth().currentUser.displayName}! You are now signed-in!</p>
-        <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
-      </div>);
+      return (
+        <SignedIn firestore={firestore} />
+      );
     }
   }
 }
