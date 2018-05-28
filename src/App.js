@@ -62,15 +62,55 @@ class App extends Component {
   }
 
   // Listen to the Firebase Auth state and set the local state.
-  componentDidMount() {
+  async componentDidMount() {
     this.unregisterAuthObserver = firebase.auth().onAuthStateChanged((user) => this.setState({
       isSignedIn: !!user
     }));
+
+    await this.getAllCourses();
+    // const firstCourse = await this.getAllCourses();
+    // await this.getLessonsByCourseId(firstCourse.id);
   }
 
   // Make sure we un-register Firebase observers when the component unmounts.
   componentWillUnmount() {
     this.unregisterAuthObserver();
+  }
+
+  // 講座一覧を取得する。
+  getAllCourses = async () => {
+    const collectionRef = firestore.collection("courses");
+
+    try {
+      const docs = await collectionRef.get();
+
+      docs.forEach(async (doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log('【講座一覧】');
+        console.log(doc.id, " => ", doc.data());
+        console.log(`${doc.id} の【レッスン一覧】`);
+        await this.getLessonsByCourseId(doc.id);
+      });
+
+      return docs.docs[0];
+    } catch (e) {
+      console.log("Error getting document:", e);
+    }
+  }
+
+  // 指定された講座のレッスン一覧を取得する。
+  getLessonsByCourseId = async (courseId) => {
+    const collectionRef = firestore.collection("courses").doc(courseId).collection("lessons");
+
+    try {
+      const docs = await collectionRef.get();
+      docs.forEach(function(doc) {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
+      });
+    } catch (e) {
+      console.log("Error getting document:", e);
+    }
   }
 
   render() {
@@ -80,7 +120,7 @@ class App extends Component {
         <p>Please sign-in:</p>
         <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
         <div id="loader">Loading...</div>
-        <NotSignedIn firestore={firestore} />
+        {/* <NotSignedIn firestore={firestore} /> */}
       </div>);
     } else {
       return (

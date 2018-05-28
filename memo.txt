@@ -1,11 +1,35 @@
-講座: コレクション
-  id: ドキュメント
-    講師の名前: user.name
-    講師のサムネイル: imageのパス（Strage）
-    一言PR: string
-    コース: サブコレクション
-      タイトル: string
-      サムネイル: imageのパス（Strage）
-      概要: string
-    メモ: string
-    created: timestamp
+coursesコレクション
+{
+  "name": "ピアノ教室" // コース名
+  "headerImage": "【Storage.id】",  // ヘッダー画像
+  "author": "【auth.uid】", // 講師のuid
+  "lecturer": { // 講師の情報
+    "name": "堅田陽介", // 講師の名前
+    "thumbnail": "【Storage.id】",  // 講師のサムネイル画像
+    "profile": "aaaaaaaaaaaaaaaaa", // プロフィールコメント
+    "pr": "bbbbbbbbbbbbbbbbbbb" // PRコメント
+  },
+  "lessons": lessons,  // サブコレクション
+  "memo": "ccccccccccccccccc",
+  "created": firebase.firestore.FieldValue.serverTimestamp(), // 作成日
+  "updated": firebase.firestore.FieldValue.serverTimestamp(), // 更新日
+}
+
+lessonsサブコレクション
+{
+  "title": "ddddddddd", // レッスン名
+  "description": "eeeeeeeeeee", // レッスンの説明
+  "thumbnail": "【Storage.id】",  // レッスンのサムネイル画像,
+  "subscribes": subscribers,  // サブコレクション
+  "created": firebase.firestore.FieldValue.serverTimestamp(), // 作成日
+  "updated": firebase.firestore.FieldValue.serverTimestamp(), // 更新日
+}
+
+subscribersサブコレクション
+{
+  "author": "【auth.uid】",  // 申込者のuid
+  "message": "ffffffffff", // 一応、申し込み時のメッセージ
+  "subscribed": firebase.firestore.FieldValue.serverTimestamp(), // 申込日
+  "created": firebase.firestore.FieldValue.serverTimestamp(), // 作成日
+  "updated": firebase.firestore.FieldValue.serverTimestamp(), // 更新日
+}

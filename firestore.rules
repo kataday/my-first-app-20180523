@@ -1,9 +1,50 @@
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users {
-      match /{uid} {
+    // ログイン
+    function isAuthenticated() {
+      return request.auth.uid != null;
+    }
+
+    // 所有者
+    function isUserAuthenticated(uid) {
+      return request.auth.uid == uid;
+    }
+
+    // 講師
+    function isLecturer(uid) {
+      // （多分、）usersコレクションのドキュメントに「講師である」フラグがあるので、そのフラグが立っているユーザか確認する。
+      // return xxx == uid;
+
+      return true;  // 仮
+    }
+
+    match /courses/{courseId} {
+      // 全員
+      allow read: if true;
+
+      // 講師（「講師である」ことを条件に追加すること）
+      allow write: if isAuthenticated();
+
+      match /lessons/{lessonsId} {
+        // 全員
         allow read: if true;
-        allow write: if request.auth.uid == uid;
+
+        // 講師（「講師である」ことを条件に追加すること）であり、この講座の登録者であること
+        allow write: if isAuthenticated() &&
+                        isUserAuthenticated(get(/databases/$(database)/documents/courses/$(courseId)).data.author);
+
+        match /subscribers/{subscribers} {
+          // TODO: 誰でも、誰が申し込んでいるのかを確認できるようにする場合は、条件を変更すること
+
+          // 申込者
+          allow read, write: if isAuthenticated() &&
+                                isUserAuthenticated(resource.data.author);
+
+          // 講師（「講師である」ことを条件に追加すること）
+          allow read, write: if isAuthenticated() &&
+                                isUserAuthenticated(get(/databases/$(database)/documents/courses/$(courseId)).data.author);
+
+        }
       }
     }
   }
