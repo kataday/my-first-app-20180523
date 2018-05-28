@@ -70,8 +70,6 @@ class App extends Component {
     }));
 
     await this.getAllCourses();
-    // const firstCourse = await this.getAllCourses();
-    // await this.getLessonsByCourseId(firstCourse.id);
   }
 
   // Make sure we un-register Firebase observers when the component unmounts.
@@ -84,17 +82,13 @@ class App extends Component {
     const collectionRef = firestore.collection("courses");
 
     try {
-      const docs = await collectionRef.get();
+      const querySnapshots = await collectionRef.orderBy("created").get();
 
       console.log('【講座一覧】');
-      docs.forEach(async (doc) => {
-        // doc.data() is never undefined for query doc snapshots
+      for (let doc of querySnapshots.docs) {
         console.log(doc.id, " => ", doc.data());
-        console.log(`${doc.id} の【レッスン一覧】`);
         await this.getLessonsByCourseId(doc.id);
-      });
-
-      return docs.docs[0];
+      }
     } catch (e) {
       console.log("Error getting document:", e);
     }
@@ -105,10 +99,11 @@ class App extends Component {
     const collectionRef = firestore.collection("courses").doc(courseId).collection("lessons");
 
     try {
-      const docs = await collectionRef.get();
-      docs.forEach(function(doc) {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
+      const querySnapshots = await collectionRef.orderBy("created").get();
+
+      console.log(`         【レッスン一覧】`);
+      querySnapshots.forEach(function(doc) {
+        console.log(`         ${doc.id} => ${doc.data()}`);
       });
     } catch (e) {
       console.log("Error getting document:", e);
@@ -153,7 +148,7 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses").doc(courseId).collection("lessons").add(data);
+      const docRef = await firestore.collection("courses").doc(this.courseIdRef.current.value).collection("lessons").add(data);
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding lessons document: ", e);
