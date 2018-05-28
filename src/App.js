@@ -59,6 +59,8 @@ class App extends Component {
     this.state = {
       isSignedIn: false
     }
+
+    this.courseIdRef = React.createRef();
   }
 
   // Listen to the Firebase Auth state and set the local state.
@@ -84,9 +86,9 @@ class App extends Component {
     try {
       const docs = await collectionRef.get();
 
+      console.log('【講座一覧】');
       docs.forEach(async (doc) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log('【講座一覧】');
         console.log(doc.id, " => ", doc.data());
         console.log(`${doc.id} の【レッスン一覧】`);
         await this.getLessonsByCourseId(doc.id);
@@ -113,18 +115,77 @@ class App extends Component {
     }
   }
 
+  // 講座の追加
+  addCourse = async () => {
+    const data = {
+      author: this.state.isSignedIn ? firebase.auth().currentUser.uid : "",
+      name: "コース名6",
+      headerImage: "",
+      lecturer: {
+        name: "堅田 陽介",
+        pr: "PRコメントPRコメントPRコメント",
+        profile: "プロフィールプロフィールプロフィール",
+        thumbnail: "",
+      },
+      created: firebase.firestore.FieldValue.serverTimestamp(),
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      const docRef = await firestore.collection("courses").add(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding courses document: ", e);
+      window.alert('ログインしてください')
+    }
+  }
+
+  // レッスンの追加
+  addLesson = async (courseId) => {
+    console.log(`courseId => ${this.courseIdRef.current.value}`);
+
+    const data = {
+      title: "レッスン名",
+      description: "レッスン詳細レッスン詳細レッスン詳細",
+      thumbnail: "",
+      created: firebase.firestore.FieldValue.serverTimestamp(),
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      const docRef = await firestore.collection("courses").doc(courseId).collection("lessons").add(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding lessons document: ", e);
+      window.alert('ログインしてください')
+    }
+  }
+
   render() {
     if (!this.state.isSignedIn) {
-      return (<div>
-        <h1>My App</h1>
-        <p>Please sign-in:</p>
-        <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
-        <div id="loader">Loading...</div>
-        {/* <NotSignedIn firestore={firestore} /> */}
-      </div>);
+      return (
+          <div>
+          <h1>My App</h1>
+          <p>Please sign-in:</p>
+          <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
+          <div id="loader">Loading...</div>
+          <br />
+          <a onClick={this.addCourse}>addCourse</a>
+          <br />
+          <a onClick={this.addLesson}>addLesson</a>
+          <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
+          {/* <NotSignedIn firestore={firestore} /> */}
+        </div>
+      );
     } else {
       return (
-        <SignedIn firestore={firestore} />
+        <React.Fragment>
+          <SignedIn firestore={firestore} />
+          <a onClick={this.addCourse}>addCourse</a>
+          <br />
+          <a onClick={this.addLesson}>addLesson</a>
+          <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
+        </React.Fragment>
       );
     }
   }

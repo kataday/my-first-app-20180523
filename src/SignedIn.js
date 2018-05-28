@@ -10,7 +10,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    this.getAll();
+    // this.getAll();
   }
 
   add = async () => {
@@ -56,8 +56,6 @@ export default class App extends Component {
       <h1>My App</h1>
       <p>Welcome {firebase.auth().currentUser.displayName}! You are now signed-in!</p>
       <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
-      <br />
-      <a onClick={this.add}>add</a>
     </div>);
   }
 }

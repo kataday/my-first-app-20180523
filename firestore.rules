@@ -11,9 +11,9 @@ service cloud.firestore {
     }
 
     // 講師
-    function isLecturer(uid) {
+    function isLecturer() {
       // （多分、）usersコレクションのドキュメントに「講師である」フラグがあるので、そのフラグが立っているユーザか確認する。
-      // return xxx == uid;
+      // return xxx == request.auth.uid;
 
       return true;  // 仮
     }
@@ -22,15 +22,17 @@ service cloud.firestore {
       // 全員
       allow read: if true;
 
-      // 講師（「講師である」ことを条件に追加すること）
-      allow write: if isAuthenticated();
+      // 講師
+      allow write: if isAuthenticated() &&
+                      isLecturer();
 
       match /lessons/{lessonsId} {
         // 全員
         allow read: if true;
 
-        // 講師（「講師である」ことを条件に追加すること）であり、この講座の登録者であること
+        // 講師であり、この講座の登録者であること
         allow write: if isAuthenticated() &&
+                        isLecturer() &&
                         isUserAuthenticated(get(/databases/$(database)/documents/courses/$(courseId)).data.author);
 
         match /subscribers/{subscribers} {
@@ -40,8 +42,9 @@ service cloud.firestore {
           allow read, write: if isAuthenticated() &&
                                 isUserAuthenticated(resource.data.author);
 
-          // 講師（「講師である」ことを条件に追加すること）
+          // 講師
           allow read, write: if isAuthenticated() &&
+                                isLecturer() &&
                                 isUserAuthenticated(get(/databases/$(database)/documents/courses/$(courseId)).data.author);
 
         }
