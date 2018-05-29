@@ -62,6 +62,7 @@ class App extends Component {
 
     this.courseIdRef = React.createRef();
     this.lessonIdRef = React.createRef();
+    this.subscriberIdRef = React.createRef();
   }
 
   // Listen to the Firebase Auth state and set the local state.
@@ -105,6 +106,23 @@ class App extends Component {
       console.log(`         【レッスン一覧】`);
       for (let doc of querySnapshots.docs) {
         console.log(`         ${doc.id} => ${doc.data()}`);
+        await this.getSubscribersByLessonId(courseId, doc.id);
+      };
+    } catch (e) {
+      console.log("Error getting document:", e);
+    }
+  }
+
+  // 指定されたレッスンの申込者一覧を取得する。
+  getSubscribersByLessonId = async (courseId, lessonId) => {
+    const collectionRef = firestore.collection("courses").doc(courseId).collection("lessons").doc(lessonId).collection("subscribers");
+
+    try {
+      const querySnapshots = await collectionRef.orderBy("created").get();
+
+      console.log(`                   【申込者一覧】`);
+      for (let doc of querySnapshots.docs) {
+        console.log(`                   ${doc.id} => ${doc.data()}`);
       };
     } catch (e) {
       console.log("Error getting document:", e);
@@ -132,7 +150,7 @@ class App extends Component {
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding courses document: ", e);
-      window.alert('ログインしてください')
+      window.alert('エラー')
     }
   }
 
@@ -153,7 +171,7 @@ class App extends Component {
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding lessons document: ", e);
-      window.alert('ログインしてください')
+      window.alert('エラー')
     }
   }
 
@@ -180,8 +198,32 @@ class App extends Component {
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding lessons document: ", e);
-      window.alert('ログインしてください')
+      window.alert('エラー')
     }
+  }
+
+  updateCourse = () => {
+
+  }
+
+  updateLesson = () => {
+
+  }
+
+  updateSubscriber = () => {
+
+  }
+
+  deleteCourse = () => {
+
+  }
+
+  deleteLesson = () => {
+
+  }
+
+  deleteSubscriber = () => {
+    
   }
 
   render() {
@@ -193,13 +235,27 @@ class App extends Component {
           <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
           <div id="loader">Loading...</div>
           <br />
+          <h2>講座</h2>
           <a onClick={this.addCourse}>addCourse</a>
           <br />
+          <a onClick={this.updateCourse}>updateCourse</a>
+          <br />
+          <a onClick={this.deleteCourse}>deleteCourse</a>
+          <h2>レッスン</h2>
           <a onClick={this.addLesson}>addLesson</a>
           <br />
+          <a onClick={this.updateLesson}>updateLesson</a>
+          <br />
+          <a onClick={this.deleteLesson}>deleteLesson</a>
+          <h2>申込者</h2>
           <a onClick={this.addSubscriber}>addSubscriber</a>
+          <br />
+          <a onClick={this.updateSubscriber}>updateSubscriber</a>
+          <br />
+          <a onClick={this.deleteSubscriber}>deleteSubscriber</a>
           <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
           <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
+          <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
           {/* <NotSignedIn firestore={firestore} /> */}
         </div>
       );
@@ -207,13 +263,27 @@ class App extends Component {
       return (
         <React.Fragment>
           <SignedIn firestore={firestore} />
+          <h2>講座</h2>
           <a onClick={this.addCourse}>addCourse</a>
           <br />
+          <a onClick={this.updateCourse}>updateCourse</a>
+          <br />
+          <a onClick={this.deleteCourse}>deleteCourse</a>
+          <h2>レッスン</h2>
           <a onClick={this.addLesson}>addLesson</a>
           <br />
+          <a onClick={this.updateLesson}>updateLesson</a>
+          <br />
+          <a onClick={this.deleteLesson}>deleteLesson</a>
+          <h2>申込者</h2>
           <a onClick={this.addSubscriber}>addSubscriber</a>
+          <br />
+          <a onClick={this.updateSubscriber}>updateSubscriber</a>
+          <br />
+          <a onClick={this.deleteSubscriber}>deleteSubscriber</a>
           <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
           <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
+          <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
         </React.Fragment>
       );
     }
