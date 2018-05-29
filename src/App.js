@@ -61,6 +61,7 @@ class App extends Component {
     }
 
     this.courseIdRef = React.createRef();
+    this.lessonIdRef = React.createRef();
   }
 
   // Listen to the Firebase Auth state and set the local state.
@@ -102,9 +103,9 @@ class App extends Component {
       const querySnapshots = await collectionRef.orderBy("created").get();
 
       console.log(`         【レッスン一覧】`);
-      querySnapshots.forEach(function(doc) {
+      for (let doc of querySnapshots.docs) {
         console.log(`         ${doc.id} => ${doc.data()}`);
-      });
+      };
     } catch (e) {
       console.log("Error getting document:", e);
     }
@@ -156,6 +157,33 @@ class App extends Component {
     }
   }
 
+  // レッスン申し込み（subscribersの追加）
+  addSubscriber = async (courseId, lessonId) => {
+    console.log(`courseId => ${this.courseIdRef.current.value}`);
+    console.log(`lessonId => ${this.lessonIdRef.current.value}`);
+
+    const data = {
+      author: this.state.isSignedIn ? firebase.auth().currentUser.uid : "",
+      message: "よろしくお願いします！",
+      subscribed: firebase.firestore.FieldValue.serverTimestamp(),
+      created: firebase.firestore.FieldValue.serverTimestamp(),
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      const docRef = await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .doc(this.lessonIdRef.current.value)
+        .collection("subscribers")
+        .add(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding lessons document: ", e);
+      window.alert('ログインしてください')
+    }
+  }
+
   render() {
     if (!this.state.isSignedIn) {
       return (
@@ -168,7 +196,10 @@ class App extends Component {
           <a onClick={this.addCourse}>addCourse</a>
           <br />
           <a onClick={this.addLesson}>addLesson</a>
+          <br />
+          <a onClick={this.addSubscriber}>addSubscriber</a>
           <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
+          <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
           {/* <NotSignedIn firestore={firestore} /> */}
         </div>
       );
@@ -179,7 +210,10 @@ class App extends Component {
           <a onClick={this.addCourse}>addCourse</a>
           <br />
           <a onClick={this.addLesson}>addLesson</a>
+          <br />
+          <a onClick={this.addSubscriber}>addSubscriber</a>
           <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
+          <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
         </React.Fragment>
       );
     }

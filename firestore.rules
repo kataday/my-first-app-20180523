@@ -38,9 +38,12 @@ service cloud.firestore {
         match /subscribers/{subscribers} {
           // TODO: 誰でも、誰が申し込んでいるのかを確認できるようにする場合は、条件を変更すること
 
+          // 新規申込は、ログイン済みなら誰でもOK
+          allow create: if isAuthenticated();
+
           // 申込者
-          allow read, write: if isAuthenticated() &&
-                                isUserAuthenticated(resource.data.author);
+          allow read, update, delete: if isAuthenticated() &&
+                                         isUserAuthenticated(resource.data.author);
 
           // 講師
           allow read, write: if isAuthenticated() &&
