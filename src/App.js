@@ -202,28 +202,104 @@ class App extends Component {
     }
   }
 
-  updateCourse = () => {
+  updateCourse = async (courseId) => {
+    const data = {
+      name: "コース名-update",
+      "lecturer.name": "katada",
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
+    try {
+      const docRef = await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .update(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error updating courses document: ", e);
+      window.alert('エラー')
+    }
   }
 
-  updateLesson = () => {
+  updateLesson = async (courseId, lessonId) => {
+    const data = {
+      title: "レッスン名-update",
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
+    try {
+      const docRef = await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .doc(this.lessonIdRef.current.value)
+        .update(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error updating lessons document: ", e);
+      window.alert('エラー')
+    }
   }
 
-  updateSubscriber = () => {
+  updateSubscriber = async (courseId, lessonId, subscriberId) => {
+    const data = {
+      message: "よろしくお願いします！-update",
+      updated: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
+    try {
+      const docRef = await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .doc(this.lessonIdRef.current.value)
+        .collection("subscribers")
+        .doc(this.subscriberIdRef.current.value)
+        .update(data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error updating subscribers document: ", e);
+      window.alert('エラー')
+    }
   }
 
-  deleteCourse = () => {
-
+  deleteCourse = async (courseId) => {
+    try {
+      await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .delete();
+      console.log("Document successfully deleted!");
+    } catch (e) {
+      console.error("Error deleting courses document: ", e);
+      window.alert('エラー')
+    }
   }
 
-  deleteLesson = () => {
-
+  deleteLesson = async (courseId, lessonId) => {
+    try {
+      await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .doc(this.lessonIdRef.current.value)
+        .delete();
+      console.log("Document successfully deleted!");
+    } catch (e) {
+      console.error("Error deleting lessons document: ", e);
+      window.alert('エラー')
+    }
   }
 
-  deleteSubscriber = () => {
-    
+  deleteSubscriber = async (courseId, lessonId, subscriberId) => {
+    try {
+      await firestore.collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .doc(this.lessonIdRef.current.value)
+        .collection("subscribers")
+        .doc(this.subscriberIdRef.current.value)
+        .delete();
+      console.log("Document successfully deleted!");
+    } catch (e) {
+      console.error("Error deleting subscribers document: ", e);
+      window.alert('エラー')
+    }
   }
 
   render() {
