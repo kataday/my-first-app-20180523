@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import SignedIn from './SignedIn';
-import NotSignedIn from './NotSignedIn';
 import './App.css';
 
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
@@ -332,7 +331,6 @@ class App extends Component {
           <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
           <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
           <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
-          {/* <NotSignedIn firestore={firestore} /> */}
         </div>
       );
     } else {
