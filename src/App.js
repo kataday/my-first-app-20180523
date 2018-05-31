@@ -5,6 +5,7 @@ import './App.css';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/storage';
 
 // Initialize Firebase
 // TODO: Replace with your project's customized code snippet
@@ -13,7 +14,7 @@ var config = {
   authDomain: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseapp.com`,
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   // databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
-  // storageBucket: "<BUCKET>.appspot.com",
+  storageBucket: "gs://my-first-app-20180523.appspot.com/",
   // messagingSenderId: "<SENDER_ID>",
 };
 firebase.initializeApp(config);
@@ -21,6 +22,9 @@ firebase.initializeApp(config);
 const firestore = firebase.firestore();
 const settings = {/* your settings... */ timestampsInSnapshots: true};
 firestore.settings(settings);
+
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = firebase.storage();
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -97,7 +101,10 @@ class App extends Component {
 
   // 指定された講座のレッスン一覧を取得する。
   getLessonsByCourseId = async (courseId) => {
-    const collectionRef = firestore.collection("courses").doc(courseId).collection("lessons");
+    const collectionRef = firestore
+      .collection("courses")
+      .doc(courseId)
+      .collection("lessons");
 
     try {
       const querySnapshots = await collectionRef.orderBy("created").get();
@@ -114,7 +121,12 @@ class App extends Component {
 
   // 指定されたレッスンの申込者一覧を取得する。
   getSubscribersByLessonId = async (courseId, lessonId) => {
-    const collectionRef = firestore.collection("courses").doc(courseId).collection("lessons").doc(lessonId).collection("subscribers");
+    const collectionRef = firestore
+      .collection("courses")
+      .doc(courseId)
+      .collection("lessons")
+      .doc(lessonId)
+      .collection("subscribers");
 
     try {
       const querySnapshots = await collectionRef.orderBy("created").get();
@@ -145,7 +157,9 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses").add(data);
+      const docRef = await firestore
+        .collection("courses")
+        .add(data);
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding courses document: ", e);
@@ -166,7 +180,11 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses").doc(this.courseIdRef.current.value).collection("lessons").add(data);
+      const docRef = await firestore
+        .collection("courses")
+        .doc(this.courseIdRef.current.value)
+        .collection("lessons")
+        .add(data);
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding lessons document: ", e);
@@ -188,7 +206,8 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses")
+      const docRef = await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .collection("lessons")
         .doc(this.lessonIdRef.current.value)
@@ -209,7 +228,8 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses")
+      const docRef = await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .update(data);
       console.log("Document written with ID: ", docRef.id);
@@ -226,7 +246,8 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses")
+      const docRef = await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .collection("lessons")
         .doc(this.lessonIdRef.current.value)
@@ -245,7 +266,8 @@ class App extends Component {
     };
 
     try {
-      const docRef = await firestore.collection("courses")
+      const docRef = await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .collection("lessons")
         .doc(this.lessonIdRef.current.value)
@@ -261,7 +283,8 @@ class App extends Component {
 
   deleteCourse = async (courseId) => {
     try {
-      await firestore.collection("courses")
+      await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .delete();
       console.log("Document successfully deleted!");
@@ -273,7 +296,8 @@ class App extends Component {
 
   deleteLesson = async (courseId, lessonId) => {
     try {
-      await firestore.collection("courses")
+      await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .collection("lessons")
         .doc(this.lessonIdRef.current.value)
@@ -287,7 +311,8 @@ class App extends Component {
 
   deleteSubscriber = async (courseId, lessonId, subscriberId) => {
     try {
-      await firestore.collection("courses")
+      await firestore
+        .collection("courses")
         .doc(this.courseIdRef.current.value)
         .collection("lessons")
         .doc(this.lessonIdRef.current.value)
