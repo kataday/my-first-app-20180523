@@ -28,7 +28,7 @@ firestore.settings(settings);
 const storage = firebase.storage();
 // Create a storage reference from our storage service
 const storageRef = storage.ref();
-const coursesRef = storageRef.child('courses');
+const imagesRef = storageRef.child('images');
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -347,10 +347,19 @@ class App extends Component {
     const file = e.target.files[0];
 
     // create ref
-    const courseRef = coursesRef.child(`${this.courseIdRef.current.value}/noimage.png`);
+    const userId = this.state.isSignedIn ? firebase.auth().currentUser.uid : "";
+    const userRef = imagesRef.child(`users/${userId}`);
+    // コースのヘッダー画像
+    const courseHeaderImageRef = userRef.child(`courses/${this.courseIdRef.current.value}/header.png`);
+    // 講師のサムネイル画像
+    const courseLecturerThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lecturer/thumbnail.png`);
+    // レッスンのサムネイル画像
+    const lessonThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lessons/${this.lessonIdRef.current.value}/thumbnail.png`);
 
     try {
-      const uploadTask = courseRef.put(file);
+      const uploadTask = courseHeaderImageRef.put(file);
+      // const uploadTask = courseLecturerThumbnailRef.put(file);
+      // const uploadTask = lessonThumbnailRef.put(file);
 
       // Listen for state changes, errors, and completion of the upload.
       uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
