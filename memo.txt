@@ -2,11 +2,11 @@
 coursesコレクション
 {
   "name": "ピアノ教室" // コース名
-  "headerImage": "【Storage.id】",  // ヘッダー画像
+  "headerImage": "【Storageの参照パス】",  // ヘッダー画像
   "author": "【auth.uid】", // 講師のuid
   "lecturer": { // 講師の情報
     "name": "堅田陽介", // 講師の名前
-    "thumbnail": "【Storage.id】",  // 講師のサムネイル画像
+    "thumbnail": "【Storageの参照パス】",  // 講師のサムネイル画像
     "profile": "aaaaaaaaaaaaaaaaa", // プロフィールコメント
     "pr": "bbbbbbbbbbbbbbbbbbb" // PRコメント
   },
@@ -20,7 +20,7 @@ lessonsサブコレクション
 {
   "title": "ddddddddd", // レッスン名
   "description": "eeeeeeeeeee", // レッスンの説明
-  "thumbnail": "【Storage.id】",  // レッスンのサムネイル画像,
+  "thumbnail": "【Storageの参照パス】",  // レッスンのサムネイル画像,
   "subscribes": subscribers,  // サブコレクション
   "created": firebase.firestore.FieldValue.serverTimestamp(), // 作成日
   "updated": firebase.firestore.FieldValue.serverTimestamp(), // 更新日
