@@ -349,12 +349,16 @@ class App extends Component {
     // create ref
     const userId = this.state.isSignedIn ? firebase.auth().currentUser.uid : "";
     const userRef = imagesRef.child(`users/${userId}`);
+
     // コースのヘッダー画像
     const courseHeaderImageRef = userRef.child(`courses/${this.courseIdRef.current.value}/header.png`);
-    // 講師のサムネイル画像
-    const courseLecturerThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lecturer/thumbnail.png`);
-    // レッスンのサムネイル画像
-    const lessonThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lessons/${this.lessonIdRef.current.value}/thumbnail.png`);
+    console.log(`【firestoreの保存パス】${courseHeaderImageRef.fullPath}`);
+    // // 講師のサムネイル画像
+    // const courseLecturerThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lecturer/thumbnail.png`);
+    // console.log(`【firestoreの保存パス】${courseLecturerThumbnailRef.fullPath}`);
+    // // レッスンのサムネイル画像
+    // const lessonThumbnailRef = userRef.child(`courses/${this.courseIdRef.current.value}/lessons/${this.lessonIdRef.current.value}/thumbnail.png`);
+    // console.log(`【firestoreの保存パス】${lessonThumbnailRef.fullPath}`);
 
     try {
       const uploadTask = courseHeaderImageRef.put(file);

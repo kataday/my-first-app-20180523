@@ -36,6 +36,9 @@ subscribersサブコレクション
 }
 
 【Storage】
-/courses/${id}/header/aaa.png
-/courses/${id}/lecturer/thumbnail/bbb.png
-/courses/${id}/lessons/${id}/thumbnail/ccc.png
+・コースのヘッダー画像
+/images/users/${uid}/courses/${id}/header.png
+・講師のサムネイル画像
+/images/users/${uid}/courses/${id}/lecturer/thumbnail.png
+・レッスンのサムネイル画像
+/images/users/${uid}/courses/${id}/lessons/${id}/thumbnail.png
