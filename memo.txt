@@ -1,3 +1,4 @@
+【Firestore】
 coursesコレクション
 {
   "name": "ピアノ教室" // コース名
@@ -33,3 +34,8 @@ subscribersサブコレクション
   "created": firebase.firestore.FieldValue.serverTimestamp(), // 作成日
   "updated": firebase.firestore.FieldValue.serverTimestamp(), // 更新日
 }
+
+【Storage】
+/courses/${id}/header/aaa.png
+/courses/${id}/lecturer/thumbnail/bbb.png
+/courses/${id}/lessons/${id}/thumbnail/ccc.png

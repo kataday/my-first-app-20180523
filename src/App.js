@@ -1,10 +1,13 @@
 import React, {Component} from 'react';
-import SignedIn from './SignedIn';
+
+import FirestoreControll from './FirestoreControll';
+import StorageControll from './StorageControll';
 import './App.css';
 
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/firestore';
 import 'firebase/storage';
 
 // Initialize Firebase
@@ -13,9 +16,7 @@ var config = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}.firebaseapp.com`,
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  // databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
   storageBucket: "gs://my-first-app-20180523.appspot.com/",
-  // messagingSenderId: "<SENDER_ID>",
 };
 firebase.initializeApp(config);
 // Initialize Cloud Firestore through Firebase
@@ -25,6 +26,9 @@ firestore.settings(settings);
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 const storage = firebase.storage();
+// Create a storage reference from our storage service
+const storageRef = storage.ref();
+const coursesRef = storageRef.child('courses');
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -74,13 +78,19 @@ class App extends Component {
       isSignedIn: !!user
     }));
 
-    await this.getAllCourses();
+    // await this.getAllCourses();
   }
 
   // Make sure we un-register Firebase observers when the component unmounts.
   componentWillUnmount() {
     this.unregisterAuthObserver();
   }
+
+  /***********************************
+  *
+  * Firestore関連メソッド
+  *
+  ***********************************/
 
   // 講座一覧を取得する。
   getAllCourses = async () => {
@@ -326,66 +336,111 @@ class App extends Component {
     }
   }
 
-  render() {
-    if (!this.state.isSignedIn) {
-      return (
-          <div>
-          <h1>My App</h1>
-          <p>Please sign-in:</p>
-          <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
-          <div id="loader">Loading...</div>
-          <br />
-          <h2>講座</h2>
-          <a onClick={this.addCourse}>addCourse</a>
-          <br />
-          <a onClick={this.updateCourse}>updateCourse</a>
-          <br />
-          <a onClick={this.deleteCourse}>deleteCourse</a>
-          <h2>レッスン</h2>
-          <a onClick={this.addLesson}>addLesson</a>
-          <br />
-          <a onClick={this.updateLesson}>updateLesson</a>
-          <br />
-          <a onClick={this.deleteLesson}>deleteLesson</a>
-          <h2>申込者</h2>
-          <a onClick={this.addSubscriber}>addSubscriber</a>
-          <br />
-          <a onClick={this.updateSubscriber}>updateSubscriber</a>
-          <br />
-          <a onClick={this.deleteSubscriber}>deleteSubscriber</a>
-          <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
-          <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
-          <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
-        </div>
-      );
-    } else {
-      return (
-        <React.Fragment>
-          <SignedIn firestore={firestore} />
-          <h2>講座</h2>
-          <a onClick={this.addCourse}>addCourse</a>
-          <br />
-          <a onClick={this.updateCourse}>updateCourse</a>
-          <br />
-          <a onClick={this.deleteCourse}>deleteCourse</a>
-          <h2>レッスン</h2>
-          <a onClick={this.addLesson}>addLesson</a>
-          <br />
-          <a onClick={this.updateLesson}>updateLesson</a>
-          <br />
-          <a onClick={this.deleteLesson}>deleteLesson</a>
-          <h2>申込者</h2>
-          <a onClick={this.addSubscriber}>addSubscriber</a>
-          <br />
-          <a onClick={this.updateSubscriber}>updateSubscriber</a>
-          <br />
-          <a onClick={this.deleteSubscriber}>deleteSubscriber</a>
-          <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
-          <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
-          <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
-        </React.Fragment>
-      );
+  /***********************************
+  *
+  * Storage関連メソッド
+  *
+  ***********************************/
+
+  // ファイルアップロード
+  handleFileChange = async (e) => {
+    const file = e.target.files[0];
+
+    // create ref
+    const courseRef = coursesRef.child(`${this.courseIdRef.current.value}/noimage.png`);
+
+    try {
+      const uploadTask = courseRef.put(file);
+
+      // Listen for state changes, errors, and completion of the upload.
+      uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+
+        // A full list of error codes is available at
+        // https://firebase.google.com/docs/storage/web/handle-errors
+        switch (error.code) {
+          case 'storage/unauthorized':
+            console.error('storage/unauthorized');
+            // User doesn't have permission to access the object
+            break;
+
+          case 'storage/canceled':
+            console.error('storage/canceled');
+            // User canceled the upload
+            break;
+
+          case 'storage/unknown':
+            console.error('storage/unknown');
+            // Unknown error occurred, inspect error.serverResponse
+            break;
+        }
+      },
+      async () => {
+        // Upload completed successfully, now we can get the download URL
+        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+        console.log('File available at', downloadURL);
+      });
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  render() {
+    const authComponent = !this.state.isSignedIn ? (
+      <React.Fragment>
+        <p>Please sign-in:</p>
+        <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
+        <div id="loader">Loading...</div>
+        <br />
+      </React.Fragment>
+    ) : (
+      <React.Fragment>
+        <p>Welcome {firebase.auth().currentUser.displayName}! You are now signed-in!</p>
+        <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
+      </React.Fragment>
+    );
+
+    const FirestoreControllMethods = {
+      addCourse: this.addCourse,
+      updateCourse: this.updateCourse,
+      deleteCourse: this.deleteCourse,
+      addLesson: this.addLesson,
+      updateLesson: this.updateLesson,
+      deleteLesson: this.deleteLesson,
+      addSubscriber: this.addSubscriber,
+      updateSubscriber: this.updateSubscriber,
+      deleteSubscriber: this.deleteSubscriber,
+    };
+
+    const StorageControllMethods = {
+      handleFileChange: this.handleFileChange,
+    };
+
+    return (
+      <React.Fragment>
+        <div>
+          <h1>My App</h1>
+          {authComponent}
+        </div>
+        <p>courseId:<input type="text" ref={this.courseIdRef} /></p>
+        <p>lessonId:<input type="text" ref={this.lessonIdRef} /></p>
+        <p>subscriberId:<input type="text" ref={this.subscriberIdRef} /></p>
+        <FirestoreControll methods={FirestoreControllMethods} />
+        <StorageControll methods={StorageControllMethods} />
+      </React.Fragment>
+    );
   }
 }
 
